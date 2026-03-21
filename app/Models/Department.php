@@ -4,7 +4,32 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use function Pest\Laravel\session;
+
 class Department extends Model
 {
-    //
+    protected $fillable = [
+        'name',
+        'company_id',
+    ];
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    public function designations()
+    {
+        return $this->hasMany(Designation::class);
+    }
+
+    public function employees()
+    {
+        return $this->throughDesignations()->hasEmployees();
+    }
+
+    public function scopeInCompany($query){
+        return $query->where('company_id', app('session')->get('company_id'));
+    }
+     
 }
