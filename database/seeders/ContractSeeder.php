@@ -14,7 +14,7 @@ class ContractSeeder extends Seeder
     public function run(): void
     {
         foreach(Employee::all() as $key =>$employee) {
-            $employee->contract()->create([
+            $employee->contracts()->create([
                 'designation_id' => $employee->designation_id,
                 'rate_type' => 'monthly',
                 'rate' => 5000,
