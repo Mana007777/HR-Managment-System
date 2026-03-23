@@ -23,7 +23,7 @@ new class extends Component
         $this->validate();
         $this->department->save();
         session()->flash('success', 'Department updated successfully.');
-        return $this->redirectIntended(route('departments.index'));
+        return $this->redirectIntended('departments.index');
     }
 };
 ?>
