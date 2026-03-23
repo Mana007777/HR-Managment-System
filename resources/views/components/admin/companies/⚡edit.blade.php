@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Company;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -24,10 +25,13 @@ new class extends Component
     public function save(){
         $this->validate();
         if($this->logo){
+            if($this->company->logo){
+                Storage::disk('public')->delete($this->company->logo);
+            }
             $this->company->logo = $this->logo->store('logos', 'public');
         }
         $this->company->save();
-        session()->flash('success', 'Company created successfully.');
+        session()->flash('success', 'Company updated successfully.');
         return $this->redirectIntended(route('companies.index'));
     }
 };
