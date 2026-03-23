@@ -67,8 +67,24 @@
                 </flux:sidebar.group>
             </flux:sidebar.group>
         </flux:sidebar.nav>
+        <p class="text-red-500">{{ session('message') }}</p>
 
         <flux:spacer />
+
+        <flux:dropdown>
+            <flux:profile
+                :name="App\Models\Company::find(session('company_id'))?->name ?? 'Select Company'"
+                :initials="App\Models\Company::find(session('company_id'))?->initials ?? 'N/A'"
+                icon-trailing="chevron-up-down" />
+
+            <flux:menu>
+                @foreach (auth()->user()->companies as $company)
+                <flux:menu.radio.group>
+                    @livewire('company-switch', ['company' => $company], key($company->id))
+                </flux:menu.radio.group>
+                @endforeach
+            </flux:menu>
+        </flux:dropdown>
 
         <flux:sidebar.nav>
             <flux:sidebar.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
