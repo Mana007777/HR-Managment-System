@@ -185,26 +185,22 @@ new class extends Component
                                 </div>
                             </td>
 
-                            {{-- Email --}}
                             <td class="px-6 py-5 text-sm text-zinc-700">
                                 <div class="truncate">
                                     {{ $company->email ?: '—' }}
                                 </div>
                             </td>
 
-                            {{-- Phone --}}
                             <td class="px-6 py-5 text-sm text-zinc-700">
                                 {{ $company->phone ?: '—' }}
                             </td>
 
-                            {{-- Address --}}
                             <td class="px-6 py-5 text-sm text-zinc-700">
                                 <div class="truncate">
                                     {{ $company->address ?: '—' }}
                                 </div>
                             </td>
 
-                            {{-- Actions --}}
                             <td class="px-6 py-5">
                                 <div class="flex justify-end items-center gap-3">
                                     <a href="{{ route('companies.edit', $company->id) }}" wire:navigate>
