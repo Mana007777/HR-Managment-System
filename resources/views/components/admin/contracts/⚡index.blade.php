@@ -16,7 +16,7 @@ new class extends Component
     }
     public function getCompaniesProperty()
     {
-        return Department::latest()->paginate(10);
+        return Department::inCompany()->paginate(5);
     }
 };
 ?>
