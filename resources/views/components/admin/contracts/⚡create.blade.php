@@ -51,12 +51,12 @@ new class extends Component
     }
     public function departments()
     {
-        return Department::inCompany()->get();  
+        return Department::inCompany()->get();
     }
     public function designations()
     {
         return $this->department_id ? Department::find($this->department_id)->designations : collect();
-        } 
+    }
 };
 ?>
 
