@@ -5,7 +5,7 @@ use Livewire\Component;
 
 new class extends Component
 {
-    public Department $department;
+    public $departmentId;
     public $name = '';
 
     public function rules()
@@ -17,24 +17,31 @@ new class extends Component
 
     public function mount($id)
     {
-        $this->department = Department::inCompany()->findOrFail($id);
-        $this->name = $this->department->name;
+        $department = Department::inCompany()->findOrFail($id);
+
+        $this->departmentId = $department->id;
+        $this->name = $department->name;
     }
 
     public function save()
     {
         $this->validate();
 
-        $this->department->name = $this->name;
-        $this->department->save();
+        $department = Department::inCompany()->findOrFail($this->departmentId);
 
-        session()->flash('success', 'Department updated successfully.');
+        $department->update([
+            'name' => $this->name,
+        ]);
 
-        return redirect()->route('departments.index');
+        $this->dispatch('department-updated', message: 'Department updated successfully.');
+    }
+
+    public function getDepartmentProperty()
+    {
+        return Department::inCompany()->findOrFail($this->departmentId);
     }
 };
 ?>
-
 <div class="w-full px-4 py-5 sm:px-6 lg:px-8">
     <div class="w-full space-y-6">
 
@@ -60,21 +67,25 @@ new class extends Component
 
         <flux:separator />
 
-        @if (session('success'))
+        <div
+            x-data="{ show: false, message: '' }"
+            x-on:department-updated.window="
+                message = $event.detail.message;
+                show = true;
+                setTimeout(() => show = false, 3000);
+            "
+        >
             <div
-                x-data="{ show: true }"
-                x-init="setTimeout(() => show = false, 3000)"
                 x-show="show"
                 x-transition
-                style="display: none;"
                 class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700"
+                style="display:none;"
             >
-                {{ session('success') }}
+                <span x-text="message"></span>
             </div>
-        @endif
+        </div>
 
         <form wire:submit.prevent="save" class="grid grid-cols-1 gap-6 xl:grid-cols-12">
-
             <div class="xl:col-span-8">
                 <flux:card class="border border-zinc-200 shadow-sm">
                     <div class="border-b border-zinc-200 px-5 py-4 sm:px-6">
@@ -86,7 +97,6 @@ new class extends Component
 
                     <div class="px-5 py-5 sm:px-6">
                         <div class="grid grid-cols-1 gap-5">
-
                             <div>
                                 <label class="mb-2 block text-sm font-medium text-zinc-700">
                                     Department Name
@@ -103,7 +113,6 @@ new class extends Component
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
-
                         </div>
                     </div>
                 </flux:card>
@@ -111,7 +120,6 @@ new class extends Component
 
             <div class="xl:col-span-4">
                 <div class="space-y-6">
-
                     <flux:card class="border border-zinc-200 shadow-sm">
                         <div class="border-b border-zinc-200 px-5 py-4">
                             <flux:heading size="lg">Record Info</flux:heading>
@@ -123,7 +131,7 @@ new class extends Component
                                     Department ID
                                 </p>
                                 <p class="mt-1 text-sm font-semibold text-zinc-900">
-                                    #{{ $department->id }}
+                                    #{{ $this->department->id }}
                                 </p>
                             </div>
 
@@ -132,21 +140,17 @@ new class extends Component
                                     Status
                                 </p>
                                 <div class="mt-2">
-                                    <flux:badge color="emerald">
-                                        Ready to update
-                                    </flux:badge>
+                                    <flux:badge color="emerald">Ready to update</flux:badge>
                                 </div>
                             </div>
                         </div>
                     </flux:card>
-
                 </div>
             </div>
 
             <div class="xl:col-span-12">
                 <flux:card class="border border-zinc-200 shadow-sm">
                     <div class="flex flex-col gap-3 px-5 py-4 sm:px-6 md:flex-row md:items-center md:justify-between">
-
                         <div>
                             <p class="text-sm font-semibold text-zinc-900">
                                 Save your changes
@@ -163,24 +167,14 @@ new class extends Component
                                 </flux:button>
                             </a>
 
-                            <flux:button
-                                variant="primary"
-                                type="submit"
-                                wire:loading.attr="disabled"
-                            >
-                                <span wire:loading.remove wire:target="save">
-                                    Update Department
-                                </span>
-                                <span wire:loading wire:target="save">
-                                    Saving...
-                                </span>
+                            <flux:button variant="primary" type="submit" wire:loading.attr="disabled">
+                                <span wire:loading.remove wire:target="save">Update Department</span>
+                                <span wire:loading wire:target="save">Saving...</span>
                             </flux:button>
                         </div>
-
                     </div>
                 </flux:card>
             </div>
-
         </form>
     </div>
-</div>  
+</div>
