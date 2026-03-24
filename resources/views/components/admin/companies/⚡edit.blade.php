@@ -10,14 +10,17 @@ new class extends Component
     use WithFileUploads;
 
     public Company $company;
+    public $name;
+    public $email;
+    public $website;
     public $logo;
 
     public function rules()
     {
         return [
-            'company.name' => 'required|string|max:255',
-            'company.email' => 'required|email|max:255',
-            'company.website' => 'nullable|url|max:255',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'website' => 'nullable|url|max:255',
             'logo' => 'nullable|image|max:2048|mimes:jpeg,png,jpg,svg',
         ];
     }
@@ -25,11 +28,18 @@ new class extends Component
     public function mount($id)
     {
         $this->company = Company::findOrFail($id);
+        $this->name = $this->company->name;
+        $this->email = $this->company->email;
+        $this->website = $this->company->website;
     }
 
     public function save()
     {
         $this->validate();
+
+        $this->company->name = $this->name;
+        $this->company->email = $this->email;
+        $this->company->website = $this->website;
 
         if ($this->logo) {
             if ($this->company->logo) {
@@ -100,11 +110,11 @@ new class extends Component
                                 </label>
                                 <input
                                     type="text"
-                                    wire:model.blur="company.name"
+                                    wire:model.blur="name"
                                     placeholder="Enter company name"
                                     class="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 outline-none transition focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10"
                                 >
-                                @error('company.name')
+                                @error('name')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
@@ -116,11 +126,11 @@ new class extends Component
                                 </label>
                                 <input
                                     type="email"
-                                    wire:model.blur="company.email"
+                                    wire:model.blur="email"
                                     placeholder="company@example.com"
                                     class="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 outline-none transition focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10"
                                 >
-                                @error('company.email')
+                                @error('email')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
@@ -132,11 +142,11 @@ new class extends Component
                                 </label>
                                 <input
                                     type="url"
-                                    wire:model.blur="company.website"
+                                    wire:model.blur="website"
                                     placeholder="https://example.com"
                                     class="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 outline-none transition focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10"
                                 >
-                                @error('company.website')
+                                @error('website')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
