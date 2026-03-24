@@ -7,6 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Payroll extends Model
 {
+    protected $fillable = [
+        'company_id',
+        'month',
+        'year',
+    ];
+
     public function company()
     {
         return $this->belongsTo(Company::class);
@@ -24,16 +30,16 @@ class Payroll extends Model
 
     public function scopeInCompany($query)
     {
-        return $query->where('company_id',$this->company_id);
+        return $query->where('company_id', session('company_id'));
     }
 
     public function getMonthYearAttribute()
     {
-        return $this->year . '-' . $this->month;
+        return $this->year . '-' . str_pad($this->month, 2, '0', STR_PAD_LEFT);
     }
 
     public function getMonthStringAttribute()
     {
-        return Carbon::parse($this->month_year)->format('F Y');
+        return Carbon::parse($this->month_year . '-01')->format('F Y');
     }
 }
