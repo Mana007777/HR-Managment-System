@@ -18,11 +18,11 @@ class Contract extends Model
     }
 
     public function scopeInCompany($query)
-    {
-        return $query->whereHas('employee', function ($q) {
-            $q->isCompany();
-        });
-    }
+{
+    return $query->whereHas('employee', function ($q) {
+        $q->inCompany();
+    });
+}
 
     public function getDurationAttribute()
     {
