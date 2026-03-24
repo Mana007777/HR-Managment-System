@@ -5,40 +5,64 @@ use Livewire\Component;
 
 new class extends Component
 {
-    public $departmentId;
-    public $name = '';
+    public int $departmentId;
+    public int $companyId;
+    public string $name = '';
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'name' => 'required|string|max:255',
         ];
     }
 
-    public function mount($id)
+    public function mount($id): void
     {
-        $department = Department::inCompany()->findOrFail($id);
+        $companyId = session('company_id');
+
+        abort_unless($companyId, 403, 'No company selected.');
+
+        $department = Department::query()
+            ->where('company_id', $companyId)
+            ->findOrFail($id);
 
         $this->departmentId = $department->id;
+        $this->companyId = $companyId;
         $this->name = $department->name;
+    }
+    public function getDepartmentProperty()
+    {
+        return Department::query()
+            ->where('id', $this->departmentId)
+            ->where('company_id', $this->companyId)
+            ->firstOrFail();
     }
 
     public function save()
     {
-        $this->validate();
-
-        $department = Department::inCompany()->findOrFail($this->departmentId);
-
-        $department->update([
+        logger('department save start', [
+            'department_id' => $this->departmentId,
+            'company_id_session' => session('company_id'),
+            'company_id_component' => $this->companyId,
             'name' => $this->name,
         ]);
 
-        $this->dispatch('department-updated', message: 'Department updated successfully.');
-    }
+        $this->validate();
 
-    public function getDepartmentProperty()
-    {
-        return Department::inCompany()->findOrFail($this->departmentId);
+        $updated = Department::query()
+            ->where('id', $this->departmentId)
+            ->where('company_id', $this->companyId)
+            ->update([
+                'name' => $this->name,
+            ]);
+
+        logger('department save result', [
+            'updated' => $updated,
+        ]);
+
+        session()->flash('success', 'Department updated successfully.');
+
+        return $this->redirectIntended(route('departments.index'));
     }
 };
 ?>
@@ -73,14 +97,12 @@ new class extends Component
                 message = $event.detail.message;
                 show = true;
                 setTimeout(() => show = false, 3000);
-            "
-        >
+            ">
             <div
                 x-show="show"
                 x-transition
                 class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700"
-                style="display:none;"
-            >
+                style="display:none;">
                 <span x-text="message"></span>
             </div>
         </div>
@@ -106,11 +128,10 @@ new class extends Component
                                     type="text"
                                     wire:model.blur="name"
                                     placeholder="Enter department name"
-                                    class="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 outline-none transition focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10"
-                                >
+                                    class="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 outline-none transition focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10">
 
                                 @error('name')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
                         </div>
