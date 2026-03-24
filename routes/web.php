@@ -6,11 +6,18 @@ Route::view('/', 'welcome')->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('dashboard', 'admin.dashboard')->name('dashboard');
-
     Route::prefix('companies')->name('companies.')->group(function () {
         Route::livewire('/', 'admin.companies.index')->name('index');
         Route::livewire('/create', 'admin.companies.create')->name('create');
         Route::livewire('/{id}/edit', 'admin.companies.edit')->name('edit');
+
+        Route::get('/{company}/select', function (\App\Models\Company $company) {
+            abort_unless(auth()->user()->companies->contains($company->id), 403);
+
+            session(['company_id' => $company->id]);
+
+            return redirect()->back();
+        })->name('select');
     });
 
     Route::middleware('company.context')->group(function () {

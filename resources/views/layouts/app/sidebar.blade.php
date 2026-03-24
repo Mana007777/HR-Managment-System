@@ -75,15 +75,23 @@
         <flux:dropdown>
             <flux:profile
                 :name="App\Models\Company::find(session('company_id'))?->name ?? 'Select Company'"
-                :initials="App\Models\Company::find(session('company_id'))?->initials ?? 'N/A'"
+                :initials="strtoupper(substr(App\Models\Company::find(session('company_id'))?->name ?? 'N', 0, 1))"
                 icon-trailing="chevron-up-down" />
 
             <flux:menu>
-                <flux:menu.radio.group>
-                    @foreach (auth()->user()->companies as $company)
-                    @livewire('company-switch', ['company' => $company], key('company-'.$company->id))
-                    @endforeach
-                </flux:menu.radio.group>
+                @foreach (auth()->user()->companies as $company)
+                <a href="{{ route('companies.select', $company) }}" class="block">
+                    <flux:menu.item>
+                        <div class="flex w-full items-center justify-between">
+                            <span>{{ $company->name }}</span>
+
+                            @if (session('company_id') == $company->id)
+                            <span class="text-xs font-medium text-emerald-600">Selected</span>
+                            @endif
+                        </div>
+                    </flux:menu.item>
+                </a>
+                @endforeach
             </flux:menu>
         </flux:dropdown>
 
