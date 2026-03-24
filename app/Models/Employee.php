@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Employee extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'name',
         'email',
@@ -21,9 +22,9 @@ class Employee extends Model
         return $this->belongsTo(Designation::class);
     }
 
-    public function department()
+    public function getDepartmentAttribute()
     {
-        return $this->designation->department;
+        return $this->designation?->department;
     }
 
     public function salaries()
@@ -51,17 +52,18 @@ class Employee extends Model
     public function scopeSearch($query, $term)
     {
         return $query->where('name', 'LIKE', "%{$term}%")
-                     ->orWhere('email', 'LIKE', "%{$term}%")
-                     ->orWhere('phone', 'LIKE', "%{$term}%");
+            ->orWhere('email', 'LIKE', "%{$term}%")
+            ->orWhere('phone', 'LIKE', "%{$term}%");
     }
 
     public function getActiveContract($start_date = null, $end_date = null)
     {
         $start_date = $start_date ?? now();
         $end_date = $end_date ?? now();
+
         return $this->contracts()
-                    ->where('start_date', '<=', $end_date)
-                    ->where('end_date', '>=', $start_date)
-                    ->first();
+            ->where('start_date', '<=', $end_date)
+            ->where('end_date', '>=', $start_date)
+            ->first();
     }
 }
