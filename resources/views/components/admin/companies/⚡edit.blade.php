@@ -14,6 +14,7 @@ new class extends Component
     public $email;
     public $website;
     public $logo;
+    public $successMessage = null;
 
     public function rules()
     {
@@ -51,9 +52,7 @@ new class extends Component
 
         $this->company->save();
 
-        session()->flash('success', 'Company updated successfully.');
-
-        return redirect()->route('companies.index');
+        $this->dispatch('company-updated', message: 'Company updated successfully.');
     }
 };
 ?>
@@ -83,11 +82,21 @@ new class extends Component
 
         <flux:separator />
 
-        @if (session('success'))
-            <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
-                {{ session('success') }}
+        <div
+            x-data="{ show: false, message: '' }"
+            x-on:company-updated.window="
+        message = $event.detail.message;
+        show = true;
+        setTimeout(() => show = false, 3000);
+    ">
+            <div
+                x-show="show"
+                x-transition
+                class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700"
+                style="display: none;">
+                <span x-text="message"></span>
             </div>
-        @endif
+        </div>
 
         <form wire:submit.prevent="save" class="grid grid-cols-1 gap-6 xl:grid-cols-12">
             {{-- Main Form --}}
@@ -112,10 +121,9 @@ new class extends Component
                                     type="text"
                                     wire:model.blur="name"
                                     placeholder="Enter company name"
-                                    class="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 outline-none transition focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10"
-                                >
+                                    class="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 outline-none transition focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10">
                                 @error('name')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -128,10 +136,9 @@ new class extends Component
                                     type="email"
                                     wire:model.blur="email"
                                     placeholder="company@example.com"
-                                    class="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 outline-none transition focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10"
-                                >
+                                    class="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 outline-none transition focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10">
                                 @error('email')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -144,10 +151,9 @@ new class extends Component
                                     type="url"
                                     wire:model.blur="website"
                                     placeholder="https://example.com"
-                                    class="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 outline-none transition focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10"
-                                >
+                                    class="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 outline-none transition focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10">
                                 @error('website')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -173,27 +179,25 @@ new class extends Component
                             <div class="flex flex-col items-center rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-6 text-center">
 
                                 @if ($logo)
-                                    <img
-                                        src="{{ $logo->temporaryUrl() }}"
-                                        alt="Logo preview"
-                                        class="h-24 w-24 rounded-2xl border border-zinc-200 bg-white object-cover shadow-sm"
-                                    >
-                                    <p class="mt-4 text-sm font-medium text-zinc-900">New logo preview</p>
-                                    <p class="mt-1 text-xs text-zinc-500">This image will replace the current logo.</p>
+                                <img
+                                    src="{{ $logo->temporaryUrl() }}"
+                                    alt="Logo preview"
+                                    class="h-24 w-24 rounded-2xl border border-zinc-200 bg-white object-cover shadow-sm">
+                                <p class="mt-4 text-sm font-medium text-zinc-900">New logo preview</p>
+                                <p class="mt-1 text-xs text-zinc-500">This image will replace the current logo.</p>
                                 @elseif ($company?->logo)
-                                    <img
-                                        src="{{ asset('storage/' . $company->logo) }}"
-                                        alt="{{ $company->name }}"
-                                        class="h-24 w-24 rounded-2xl border border-zinc-200 bg-white object-cover shadow-sm"
-                                    >
-                                    <p class="mt-4 text-sm font-medium text-zinc-900">Current logo</p>
-                                    <p class="mt-1 text-xs text-zinc-500">Upload a new image to replace it.</p>
+                                <img
+                                    src="{{ asset('storage/' . $company->logo) }}"
+                                    alt="{{ $company->name }}"
+                                    class="h-24 w-24 rounded-2xl border border-zinc-200 bg-white object-cover shadow-sm">
+                                <p class="mt-4 text-sm font-medium text-zinc-900">Current logo</p>
+                                <p class="mt-1 text-xs text-zinc-500">Upload a new image to replace it.</p>
                                 @else
-                                    <div class="flex h-24 w-24 items-center justify-center rounded-2xl bg-zinc-900 text-2xl font-semibold text-white shadow-sm">
-                                        {{ strtoupper(substr($company->name ?? 'C', 0, 1)) }}
-                                    </div>
-                                    <p class="mt-4 text-sm font-medium text-zinc-900">No logo uploaded</p>
-                                    <p class="mt-1 text-xs text-zinc-500">Add one to give the company a visual identity.</p>
+                                <div class="flex h-24 w-24 items-center justify-center rounded-2xl bg-zinc-900 text-2xl font-semibold text-white shadow-sm">
+                                    {{ strtoupper(substr($company->name ?? 'C', 0, 1)) }}
+                                </div>
+                                <p class="mt-4 text-sm font-medium text-zinc-900">No logo uploaded</p>
+                                <p class="mt-1 text-xs text-zinc-500">Add one to give the company a visual identity.</p>
                                 @endif
 
                                 <label class="mt-5 inline-flex cursor-pointer items-center rounded-xl border border-zinc-300 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 shadow-sm transition hover:bg-zinc-50">
@@ -206,7 +210,7 @@ new class extends Component
                                 </p>
 
                                 @error('logo')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
 
                                 <div wire:loading wire:target="logo" class="mt-3 text-sm text-zinc-500">

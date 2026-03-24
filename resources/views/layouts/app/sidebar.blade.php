@@ -3,6 +3,7 @@
 
 <head>
     @include('partials.head')
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 
 <body class="min-h-screen bg-white dark:bg-zinc-800">
