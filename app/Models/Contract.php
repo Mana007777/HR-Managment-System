@@ -7,6 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Contract extends Model
 {
+    protected $fillable = [
+        'designation_id',
+        'employee_id',
+        'start_date',
+        'end_date',
+        'rate_type',
+        'rate',
+    ];
     public function employee()
     {
         return $this->belongsTo(Employee::class);
