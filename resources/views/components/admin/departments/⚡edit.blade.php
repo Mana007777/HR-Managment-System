@@ -42,13 +42,6 @@
         {
             $this->validate();
 
-            $updated = Department::query()
-                ->where('id', $this->departmentId)
-                ->where('company_id', $this->companyId)
-                ->update([
-                    'name' => $this->name,
-                ]);
-
             session()->flash('success', 'Department updated successfully.');
 
             return $this->redirectIntended(route('departments.index'));
