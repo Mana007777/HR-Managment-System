@@ -49,10 +49,6 @@
                     'name' => $this->name,
                 ]);
 
-            logger('department save result', [
-                'updated' => $updated,
-            ]);
-
             session()->flash('success', 'Department updated successfully.');
 
             return $this->redirectIntended(route('departments.index'));
